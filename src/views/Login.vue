@@ -1,39 +1,41 @@
 <template>
   <div>
-    <h1>Login page</h1>
+    <b-spinner small></b-spinner> Connexion...
   </div>
 </template>
 
 <script>
 import Api from '../services/Api'
-const $api = new Api()
 import OAuth from '../services/OAuth'
+const $api = new Api()
 const $oauth = new OAuth()
 
 export default {
   name: 'Login',
   data () {
-    return {}
+    return {
+      next: this.$route.query.next || '/'
+    }
   },
   mounted () {
     if (!this.token) {
       console.debug('No oauth token found ¯\\_(ツ)_/¯')
       if (!this.$store.state.user.loggedIn) {
-        $oauth.getToken()
+        $oauth.getToken(this.next)
       } else {
         console.log('Logged in', this.$store.state.user)
-        this.$router.push('/')
+        this.$router.push(this.next)
       }
     } else {
       this.$store.dispatch('login', this.token).then(() => {
         // TODO move to store
-        return $api.get('me', data => {
+        return $api.get('me').then(data => {
           return data.body
         }).then(data => {
-          return this.$store.dispatch('fillData', data)
+          return this.$store.dispatch('fillUserData', data)
         })
       }).then(() => {
-        this.$router.push('/')
+        this.$router.push(this.state)
       })
     }
   },
@@ -43,6 +45,9 @@ export default {
     },
     expiresIn () {
       return this.params['expires_in']
+    },
+    state () {
+      return this.params['state'] && decodeURIComponent(this.params['state'])
     },
     params () {
       const parsedParams = {}
