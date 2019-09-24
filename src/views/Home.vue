@@ -14,7 +14,7 @@
       </b-button>
     </b-form>
     <b-alert v-if="scrapError" show variant="danger">Désolé, nous n'avons pas pu récupérer assez d'information pour générer votre réutilisation :-/</b-alert>
-    <div v-if="!!scrapData">
+    <div v-if="hasScrapData">
       <b-card
         :title="scrapData.title"
         :img-src="scrapData.image"
@@ -26,10 +26,10 @@
         </b-card-text>
       </b-card>
     </div>
-    <div v-if="scrapData || scrapError">
+    <div v-if="hasScrapData || scrapError">
       Pas satisfait du résultat&nbsp;? Vous pouvez créer une réutilisation en utilisant <a href="https://www.data.gouv.fr/fr/admin/reuse/new/">l'interface classique de data.gouv.fr.</a>
     </div>
-    <b-button variant="success" v-if="scrapData" @click="onPublish">
+    <b-button variant="success" v-if="hasScrapData" @click="onPublish">
       Publier sur data.gouv.fr
     </b-button>
   </div>
@@ -53,6 +53,9 @@ export default {
   computed: {
     scrapData () {
       return this.$store.state.scrap.data
+    },
+    hasScrapData () {
+      return this.$store.state.scrap.url && this.$store.state.scrap.data.title
     }
   },
   methods: {
